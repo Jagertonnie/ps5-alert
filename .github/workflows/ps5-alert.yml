@@ -1,0 +1,58 @@
+name: PS5 Pro stock alert
+
+# Draait de controle in de cloud, ook als alle laptops uit staan.
+# Nodig: twee repository secrets, PUSHOVER_USER_KEY en PUSHOVER_APP_TOKEN.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # elke 5 minuten (GitHub start soms later bij drukte)
+  workflow_dispatch:
+    inputs:
+      testmelding:
+        description: 'Alleen een testalarm naar je telefoon sturen'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ps5-alert
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  controle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+      PUSHOVER_APP_TOKEN: ${{ secrets.PUSHOVER_APP_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Testalarm sturen
+        if: ${{ inputs.testmelding }}
+        shell: pwsh
+        run: ./ps5-alert.ps1 -Test
+
+      # De uitkomst van de vorige controle onthouden, zodat je per aanvulling een alarm krijgt
+      # en niet elke 5 minuten opnieuw.
+      - name: Vorige uitkomst ophalen
+        if: ${{ !inputs.testmelding }}
+        uses: actions/cache/restore@v6
+        with:
+          path: state
+          key: ps5-staat-${{ github.run_id }}
+          restore-keys: ps5-staat-
+
+      - name: Winkels controleren
+        if: ${{ !inputs.testmelding }}
+        shell: pwsh
+        run: ./ps5-alert.ps1 -Once -StateDir state
+
+      - name: Uitkomst bewaren
+        if: ${{ !inputs.testmelding && always() }}
+        uses: actions/cache/save@v6
+        with:
+          path: state
+          key: ps5-staat-${{ github.run_id }}
