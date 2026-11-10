@@ -1,0 +1,102 @@
+{
+  "winkels": [
+    {
+      "id": "psdirect",
+      "naam": "PlayStation Direct",
+      "type": "jsonld",
+      "elkeMinuten": 2,
+      "url": "https://www.playstation.com/nl-nl/ps5/ps5-pro/buy-now/"
+    },
+    {
+      "id": "amazon-nl",
+      "naam": "Amazon.nl",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.nl/dp/B0FRYBZR91",
+      "verkoperIds": [
+        "A17D2BRD4YMT0X"
+      ]
+    },
+    {
+      "id": "amazon-nl-2",
+      "naam": "Amazon.nl (2e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.nl/dp/B0DGY63Z2H",
+      "verkoperIds": [
+        "A17D2BRD4YMT0X"
+      ]
+    },
+    {
+      "id": "amazon-de",
+      "naam": "Amazon.de",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.de/dp/B0DGY63Z2H",
+      "verkoperIds": [
+        "A3JWKAKR8XB7XF"
+      ],
+      "buitenland": true
+    },
+    {
+      "id": "amazon-fr",
+      "naam": "Amazon.fr",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.fr/dp/B0DHSV68YZ",
+      "verkoperIds": [
+        "A1X6FK5RDHNB96"
+      ],
+      "buitenland": true
+    },
+    {
+      "id": "amazon-be",
+      "naam": "Amazon.com.be",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.com.be/dp/B0DGY63Z2H",
+      "verkoperIds": [
+        "A3Q3FYJVX702M2"
+      ],
+      "buitenland": true
+    },
+    {
+      "id": "mediamarkt",
+      "naam": "MediaMarkt",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.mediamarkt.nl/nl/product/_sony-playstation-5-pro-2000-gb-153491174.html",
+      "verkoperPatroon": "(?i)media\\s*markt"
+    },
+    {
+      "id": "mediamarkt-2",
+      "naam": "MediaMarkt (2e pagina)",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.mediamarkt.nl/nl/product/_sony-playstation-playstation-5-pro-2-tb-165869416.html",
+      "verkoperPatroon": "(?i)media\\s*markt"
+    },
+    {
+      "id": "coolblue",
+      "naam": "Coolblue",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.coolblue.nl/product/954519/playstation-5-pro-digital-edition.html"
+    },
+    {
+      "id": "alternate",
+      "naam": "Alternate",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.alternate.nl/Sony-Interactive-Entertainment/PlayStation-5-Pro-Digital-Edition-2-TB-game-console/html/product/100160951",
+      "verkoperPatroon": "(?i)alternate"
+    },
+    {
+      "id": "intertoys",
+      "naam": "Intertoys",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.intertoys.nl/ps5-pro-2tb"
+    }
+  ]
+}
