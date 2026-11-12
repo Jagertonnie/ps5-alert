@@ -6,7 +6,6 @@
 $script:StandaardNaamPatroon = '(?i)(playstation|ps)\W{0,3}5\W{0,3}pro'
 $script:StandaardMinPrijs = 500
 $script:TeKoopStatussen = @('InStock', 'LimitedAvailability', 'OnlineOnly', 'PreOrder', 'BackOrder')
-$script:PauzeNaMinuten = 30
 
 # ---------- kleine hulpjes ----------
 
@@ -140,7 +139,8 @@ function Get-WinkelStatus([string]$Html, $Winkel, [decimal]$MaxPrijs) {
 
 # Werkt de onthouden staat van een winkel bij en zegt welke meldingen eruit moeten:
 # 'alarm' (nieuw op voorraad), 'storing' (al lang onleesbaar) of 'hersteld'.
-function Update-WinkelStaat($Staat, $Resultaat, [datetime]$Nu, [int]$StoringNaMinuten = 60) {
+# -PauzeNaMinuten 0 zet de pauze-regel uit (cloud: daar zit soms een uur tussen twee controles).
+function Update-WinkelStaat($Staat, $Resultaat, [datetime]$Nu, [int]$StoringNaMinuten = 60, [int]$PauzeNaMinuten = 30) {
     $nieuw = [pscustomobject]@{
         OpVoorraad    = [bool](Get-Eigenschap $Staat 'OpVoorraad' $false)
         MisluktSinds  = Get-Eigenschap $Staat 'MisluktSinds'
@@ -156,7 +156,7 @@ function Update-WinkelStaat($Staat, $Resultaat, [datetime]$Nu, [int]$StoringNaMi
         # Na een lange pauze (laptop uit of in slaap) begint de storingstijd opnieuw,
         # anders lijkt een nacht dichtgeklapt op een urenlange storing.
         $vorigeCheck = Get-Eigenschap $Staat 'LaatsteCheck'
-        $langePauze = $vorigeCheck -and (($Nu - (ConvertTo-Tijd $vorigeCheck)).TotalMinutes -gt $script:PauzeNaMinuten)
+        $langePauze = ($PauzeNaMinuten -gt 0) -and $vorigeCheck -and (($Nu - (ConvertTo-Tijd $vorigeCheck)).TotalMinutes -gt $PauzeNaMinuten)
         if (-not $nieuw.MisluktSinds -or $langePauze) { $nieuw.MisluktSinds = $Nu.ToString('o') }
         $duurt = ($Nu - (ConvertTo-Tijd $nieuw.MisluktSinds)).TotalMinutes
         if (-not $nieuw.StoringGemeld -and $duurt -ge $StoringNaMinuten) {
@@ -184,7 +184,7 @@ function Test-AanDeBeurt($LaatsteCheck, [int]$ElkeMinuten, [datetime]$Nu) {
 # Haalt een winkelpagina op (via -Ophalen), beoordeelt hem, werkt de staat bij en verstuurt meldingen.
 # -Ophalen krijgt de url en geeft een object met Code (HTTP-status) en Html terug.
 # -Melden krijgt de soort melding en het bericht, en geeft $true terug als het verstuurd is.
-function Invoke-WinkelControle($Winkel, $Staat, [scriptblock]$Ophalen, [decimal]$MaxPrijs, [datetime]$Nu, [int]$StoringNaMinuten = 60, [scriptblock]$Melden = $null) {
+function Invoke-WinkelControle($Winkel, $Staat, [scriptblock]$Ophalen, [decimal]$MaxPrijs, [datetime]$Nu, [int]$StoringNaMinuten = 60, [scriptblock]$Melden = $null, [int]$PauzeNaMinuten = 30) {
     $resultaat = $null
     try {
         $pagina = & $Ophalen $Winkel.url
@@ -194,7 +194,7 @@ function Invoke-WinkelControle($Winkel, $Staat, [scriptblock]$Ophalen, [decimal]
     catch {
         $resultaat = New-Status 'onleesbaar' $null "fout: $($_.Exception.Message)"
     }
-    $update = Update-WinkelStaat -Staat $Staat -Resultaat $resultaat -Nu $Nu -StoringNaMinuten $StoringNaMinuten
+    $update = Update-WinkelStaat -Staat $Staat -Resultaat $resultaat -Nu $Nu -StoringNaMinuten $StoringNaMinuten -PauzeNaMinuten $PauzeNaMinuten
     if ($Melden) {
         foreach ($soort in $update.Meldingen) {
             $verstuurd = $false
@@ -206,6 +206,29 @@ function Invoke-WinkelControle($Winkel, $Staat, [scriptblock]$Ophalen, [decimal]
         }
     }
     [pscustomobject]@{ Staat = $update.Staat; Meldingen = $update.Meldingen; Resultaat = $resultaat }
+}
+
+# De winkels die in deze omgeving meedoen. Winkels met "cloud": false in winkels.json
+# blokkeren de servers van de cloud en worden daar overgeslagen; op de laptop doen ze gewoon mee.
+function Select-Winkels($Winkels, [bool]$InCloud) {
+    @($Winkels) | Where-Object { -not $InCloud -or (Get-Eigenschap $_ 'cloud' $true) }
+}
+
+# Een regel die zegt hoe een hele controleronde is gegaan (voor het logboek en de cloud).
+# -Uitkomsten: objecten met Winkel en Resultaat.
+function Get-RondeSamenvatting($Uitkomsten) {
+    $alle = @($Uitkomsten)
+    $hits = @($alle | Where-Object { $_.Resultaat.Status -eq 'hit' })
+    $geen = @($alle | Where-Object { $_.Resultaat.Status -eq 'geen' })
+    $stuk = @($alle | Where-Object { $_.Resultaat.Status -eq 'onleesbaar' })
+    $tekst = "$($alle.Count) bekeken: $($hits.Count) te koop, $($geen.Count) niet te koop, $($stuk.Count) niet uit te lezen."
+    if ($stuk.Count -gt 0) {
+        $tekst += ' Niet uit te lezen: ' + (($stuk | ForEach-Object { "$($_.Winkel.naam) ($($_.Resultaat.Reden))" }) -join ', ') + '.'
+    }
+    if ($hits.Count -gt 0) {
+        $tekst += ' TE KOOP: ' + (($hits | ForEach-Object { "$($_.Winkel.naam) $(Format-Prijs $_.Resultaat.Prijs)" }) -join ', ') + '.'
+    }
+    $tekst
 }
 
 # Leesbare regel per winkel voor het statusoverzicht.

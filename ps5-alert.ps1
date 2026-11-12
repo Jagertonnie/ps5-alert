@@ -89,6 +89,8 @@ function Send-Melding($Bericht) {
 }
 
 $winkels = @(([IO.File]::ReadAllText($WinkelsPad, [Text.Encoding]::UTF8) | ConvertFrom-Json).winkels)
+# Op GitHub alleen de winkels die de servers daar toelaten; Amazon en MediaMarkt volgt alleen de laptop.
+$winkels = @(Select-Winkels -Winkels $winkels -InCloud ($env:GITHUB_ACTIONS -eq 'true'))
 Update-Instellingen
 
 if ($Test) {
@@ -138,6 +140,11 @@ $melden = { param($soort, $bericht) Send-Melding $bericht }
 $meldingTekst = if ($script:instellingen.KanMelden) { 'ingesteld' } else { 'NOG NIET ingesteld (vul config.json in)' }
 Write-Log "Gestart: $($winkels.Count) winkelpagina's, maximum $(Format-Prijs $script:instellingen.MaxPrijs), melding naar telefoon $meldingTekst"
 
+# Op de laptop begint de storingstijd opnieuw na een pauze van een half uur (dichtgeklapt).
+# In de cloud niet: daar zit soms een uur tussen twee controles.
+$pauzeNaMinuten = if ($Once) { 0 } else { 30 }
+$uitkomsten = @()
+
 while ($true) {
     try { Update-Instellingen } catch { Write-Log $_.Exception.Message }
 
@@ -145,9 +152,10 @@ while ($true) {
         $vorige = $staat[$winkel.id]
         if (-not $Once -and -not (Test-AanDeBeurt (Get-Eigenschap $vorige 'LaatsteCheck') $winkel.elkeMinuten (Get-Date))) { continue }
         try {
-            $r = Invoke-WinkelControle -Winkel $winkel -Staat $vorige -Ophalen $ophalen -Melden $melden -MaxPrijs $script:instellingen.MaxPrijs -Nu (Get-Date) -StoringNaMinuten $script:instellingen.StoringNaMinuten
+            $r = Invoke-WinkelControle -Winkel $winkel -Staat $vorige -Ophalen $ophalen -Melden $melden -MaxPrijs $script:instellingen.MaxPrijs -Nu (Get-Date) -StoringNaMinuten $script:instellingen.StoringNaMinuten -PauzeNaMinuten $pauzeNaMinuten
             $staat[$winkel.id] = $r.Staat
             Save-Staat -Pad $staatPad -Staat $staat
+            if ($Once) { $uitkomsten += [pscustomobject]@{ Winkel = $winkel; Resultaat = $r.Resultaat } }
 
             # Alleen loggen als er iets verandert, anders loopt het logboek vol.
             $regel = "$($winkel.naam): $($r.Resultaat.Status) - $($r.Resultaat.Reden)"
@@ -160,6 +168,14 @@ while ($true) {
         catch { Write-Log "Onverwachte fout bij $($winkel.naam): $($_.Exception.Message)" }
     }
 
-    if ($Once) { break }
+    if ($Once) {
+        $samenvatting = Get-RondeSamenvatting -Uitkomsten $uitkomsten
+        Write-Log "Ronde klaar. $samenvatting"
+        # Op GitHub: de samenvatting als notitie bij de run zetten, zodat je hem ziet zonder het logboek te openen.
+        if ($env:GITHUB_ACTIONS -eq 'true') {
+            Write-Host ('::notice title=PS5-alert::' + $samenvatting.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A'))
+        }
+        break
+    }
     Start-Sleep -Seconds 15
 }
