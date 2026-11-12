@@ -237,7 +237,8 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.informatique.nl/265258/sony-playstation-5-pro-2tb.html",
-      "verkoperPatroon": "(?i)^informatique$"
+      "verkoperPatroon": "(?i)^informatique$",
+      "cloud": false
     },
     {
       "id": "caps",
@@ -261,7 +262,8 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.wehkamp.nl/sony-playstation-5-pro-console-17340681/",
-      "naamPatroon": "(?i)^pro-console$"
+      "naamPatroon": "(?i)^pro-console$",
+      "cloud": false
     },
     {
       "id": "ldlc",
@@ -294,7 +296,8 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.e-tec.at/de/shop/produkt/142611/sony-playstation-5-pro-digital-2tb-weiss-e-chassis.html",
-      "buitenland": true
+      "buitenland": true,
+      "cloud": false
     }
   ]
 }
