@@ -89,6 +89,9 @@ function Get-AanbiedingBezwaar($Aanbieding, $Winkel, [decimal]$MaxPrijs) {
     $conditie = [string](Get-Eigenschap $Aanbieding 'itemCondition' '')
     if ($conditie -and $conditie -notmatch 'NewCondition') { return 'niet nieuw' }
 
+    $munt = [string](Get-Eigenschap $Aanbieding 'priceCurrency' '')
+    if ($munt -and $munt -ne 'EUR') { return "andere munt ($munt)" }
+
     $verkoper = Get-Eigenschap $Aanbieding 'seller'
     $verkoperNaam = if ($verkoper -is [string]) { $verkoper } else { [string](Get-Eigenschap $verkoper 'name' '') }
     if ($verkoperNaam) {

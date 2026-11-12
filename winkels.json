@@ -22,8 +22,19 @@
       "id": "amazon-nl-2",
       "naam": "Amazon.nl (2e pagina)",
       "type": "amazon",
-      "elkeMinuten": 5,
+      "elkeMinuten": 15,
       "url": "https://www.amazon.nl/dp/B0DGY63Z2H",
+      "verkoperIds": [
+        "A17D2BRD4YMT0X"
+      ],
+      "cloud": false
+    },
+    {
+      "id": "amazon-nl-3",
+      "naam": "Amazon.nl (3e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.nl/dp/B0DHSV68YZ",
       "verkoperIds": [
         "A17D2BRD4YMT0X"
       ],
@@ -33,8 +44,32 @@
       "id": "amazon-de",
       "naam": "Amazon.de",
       "type": "amazon",
-      "elkeMinuten": 5,
+      "elkeMinuten": 15,
       "url": "https://www.amazon.de/dp/B0DGY63Z2H",
+      "verkoperIds": [
+        "A3JWKAKR8XB7XF"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-de-2",
+      "naam": "Amazon.de (2e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.de/dp/B0FRYBZR91",
+      "verkoperIds": [
+        "A3JWKAKR8XB7XF"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-de-3",
+      "naam": "Amazon.de (3e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.de/dp/B0DHSV68YZ",
       "verkoperIds": [
         "A3JWKAKR8XB7XF"
       ],
@@ -54,13 +89,97 @@
       "cloud": false
     },
     {
+      "id": "amazon-fr-2",
+      "naam": "Amazon.fr (2e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.fr/dp/B0FRYBZR91",
+      "verkoperIds": [
+        "A1X6FK5RDHNB96"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
       "id": "amazon-be",
       "naam": "Amazon.com.be",
       "type": "amazon",
-      "elkeMinuten": 5,
+      "elkeMinuten": 15,
       "url": "https://www.amazon.com.be/dp/B0DGY63Z2H",
       "verkoperIds": [
         "A3Q3FYJVX702M2"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-be-2",
+      "naam": "Amazon.com.be (2e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.com.be/dp/B0FRYBZR91",
+      "verkoperIds": [
+        "A3Q3FYJVX702M2"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-be-3",
+      "naam": "Amazon.com.be (3e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.com.be/dp/B0DHSV68YZ",
+      "verkoperIds": [
+        "A3Q3FYJVX702M2"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-it",
+      "naam": "Amazon.it",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.it/dp/B0FRYBZR91",
+      "verkoperIds": [
+        "A11IL2PNWYJU7H"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-it-2",
+      "naam": "Amazon.it (2e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.it/dp/B0DHSV68YZ",
+      "verkoperIds": [
+        "A11IL2PNWYJU7H"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-es",
+      "naam": "Amazon.es",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.es/dp/B0FRYBZR91",
+      "verkoperIds": [
+        "A1AT7YVPFBWXBL"
+      ],
+      "buitenland": true,
+      "cloud": false
+    },
+    {
+      "id": "amazon-es-2",
+      "naam": "Amazon.es (2e pagina)",
+      "type": "amazon",
+      "elkeMinuten": 5,
+      "url": "https://www.amazon.es/dp/B0DHSV68YZ",
+      "verkoperIds": [
+        "A1AT7YVPFBWXBL"
       ],
       "buitenland": true,
       "cloud": false
@@ -104,6 +223,78 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.intertoys.nl/ps5-pro-2tb"
+    },
+    {
+      "id": "megekko",
+      "naam": "Megekko",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.megekko.nl/product/23277/1164471/Sony-Playstation-5/Sony-PlayStation-5-Pro-2-TB-Wifi-Zwart-Wit"
+    },
+    {
+      "id": "informatique",
+      "naam": "Informatique",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.informatique.nl/265258/sony-playstation-5-pro-2tb.html",
+      "verkoperPatroon": "(?i)^informatique$"
+    },
+    {
+      "id": "caps",
+      "naam": "CAPS",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.caps.nl/sony-interactive-entertainment-playstation-5-pro-2-tb-wifi-zwart-wit-id-1029396.html",
+      "verkoperPatroon": "(?i)^caps$"
+    },
+    {
+      "id": "caps-2",
+      "naam": "CAPS (2e pagina)",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.caps.nl/sony-playstation-5-pro-wit-zwart-id-1030273.html",
+      "verkoperPatroon": "(?i)^caps$"
+    },
+    {
+      "id": "wehkamp",
+      "naam": "Wehkamp",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.wehkamp.nl/sony-playstation-5-pro-console-17340681/",
+      "naamPatroon": "(?i)^pro-console$"
+    },
+    {
+      "id": "ldlc",
+      "naam": "LDLC (Frankrijk)",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.ldlc.com/en/product/PB00649574.html",
+      "verkoperPatroon": "(?i)^ldlc$",
+      "buitenland": true
+    },
+    {
+      "id": "xtralife",
+      "naam": "xtralife (Spanje)",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.xtralife.com/producto/consola-ps5-pro-ps5-edicion-pro/83107",
+      "buitenland": true
+    },
+    {
+      "id": "caseking",
+      "naam": "Caseking (Duitsland)",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.caseking.de/sony-playstation-5-pro-digital-edition-2-tb-weiss/KSSP-005.html",
+      "buitenland": true
+    },
+    {
+      "id": "e-tec",
+      "naam": "e-tec (Oostenrijk)",
+      "type": "jsonld",
+      "elkeMinuten": 5,
+      "url": "https://www.e-tec.at/de/shop/produkt/142611/sony-playstation-5-pro-digital-2tb-weiss-e-chassis.html",
+      "buitenland": true
     }
   ]
 }
