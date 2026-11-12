@@ -15,7 +15,8 @@
       "url": "https://www.amazon.nl/dp/B0FRYBZR91",
       "verkoperIds": [
         "A17D2BRD4YMT0X"
-      ]
+      ],
+      "cloud": false
     },
     {
       "id": "amazon-nl-2",
@@ -25,7 +26,8 @@
       "url": "https://www.amazon.nl/dp/B0DGY63Z2H",
       "verkoperIds": [
         "A17D2BRD4YMT0X"
-      ]
+      ],
+      "cloud": false
     },
     {
       "id": "amazon-de",
@@ -36,7 +38,8 @@
       "verkoperIds": [
         "A3JWKAKR8XB7XF"
       ],
-      "buitenland": true
+      "buitenland": true,
+      "cloud": false
     },
     {
       "id": "amazon-fr",
@@ -47,7 +50,8 @@
       "verkoperIds": [
         "A1X6FK5RDHNB96"
       ],
-      "buitenland": true
+      "buitenland": true,
+      "cloud": false
     },
     {
       "id": "amazon-be",
@@ -58,7 +62,8 @@
       "verkoperIds": [
         "A3Q3FYJVX702M2"
       ],
-      "buitenland": true
+      "buitenland": true,
+      "cloud": false
     },
     {
       "id": "mediamarkt",
@@ -66,7 +71,8 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.mediamarkt.nl/nl/product/_sony-playstation-5-pro-2000-gb-153491174.html",
-      "verkoperPatroon": "(?i)media\\s*markt"
+      "verkoperPatroon": "(?i)media\\s*markt",
+      "cloud": false
     },
     {
       "id": "mediamarkt-2",
@@ -74,7 +80,8 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.mediamarkt.nl/nl/product/_sony-playstation-playstation-5-pro-2-tb-165869416.html",
-      "verkoperPatroon": "(?i)media\\s*markt"
+      "verkoperPatroon": "(?i)media\\s*markt",
+      "cloud": false
     },
     {
       "id": "coolblue",
