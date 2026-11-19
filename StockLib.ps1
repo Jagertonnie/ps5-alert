@@ -38,8 +38,21 @@ function ConvertTo-Tijd($Waarde) {
     [datetime]::Parse([string]$Waarde, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind)
 }
 
-function New-Status([string]$Status, $Prijs, [string]$Reden) {
-    [pscustomobject]@{ Status = $Status; Prijs = $Prijs; Reden = $Reden }
+# Levering: wat de pagina over de levering zegt (bij een hit), bijvoorbeeld 'op voorraad' of 'voorbestelling'.
+function New-Status([string]$Status, $Prijs, [string]$Reden, $Levering = $null) {
+    [pscustomobject]@{ Status = $Status; Prijs = $Prijs; Reden = $Reden; Levering = $Levering }
+}
+
+# Zegt de tekst van de winkel dat levering langer dan twee weken duurt?
+# Onbekend of onduidelijk telt niet als lang: dan komt het alarm wel en staat de tekst erbij.
+function Test-LangeLevertijd([string]$Tekst) {
+    if ($Tekst -match '(?i)\b(maand|maanden|months?|monat|monate|monaten|mois|mes|meses|mese|mesi)\b') { return $true }
+    foreach ($m in [regex]::Matches($Tekst, '(?i)(\d+)(?:\D{1,6}(\d+))?\s*(weken|week|weeks|wochen|woche|semaines?|semanas?|settiman[ae])')) {
+        $hoogste = [int]$m.Groups[1].Value
+        if ($m.Groups[2].Success) { $hoogste = [Math]::Max($hoogste, [int]$m.Groups[2].Value) }
+        if ($hoogste -gt 2) { return $true }
+    }
+    return $false
 }
 
 # Geeft een reden terug als de prijs niet goed is, anders niets.
@@ -112,7 +125,12 @@ function Get-JsonLdStatus([string]$Html, $Winkel, [decimal]$MaxPrijs) {
     foreach ($aanbieding in @(Get-Eigenschap $product 'offers')) {
         $prijs = ConvertTo-Prijs (Get-Eigenschap $aanbieding 'price')
         $bezwaar = Get-AanbiedingBezwaar $aanbieding $Winkel $MaxPrijs
-        if (-not $bezwaar) { return (New-Status 'hit' $prijs 'te koop') }
+        if (-not $bezwaar) {
+            # Een voorbestelling of nabestelling is wel te koop, maar ligt niet klaar: dat komt in het alarm te staan.
+            $status = ([string](Get-Eigenschap $aanbieding 'availability' '')) -replace '^.*/', ''
+            $levering = switch ($status) { 'PreOrder' { 'voorbestelling' } 'BackOrder' { 'nabestelling' } default { 'op voorraad' } }
+            return (New-Status 'hit' $prijs "te koop, $levering" $levering)
+        }
         if (-not $eersteBezwaar) { $eersteBezwaar = $bezwaar; $eerstePrijs = $prijs }
     }
     New-Status 'geen' $eerstePrijs $eersteBezwaar
@@ -129,7 +147,13 @@ function Get-AmazonStatus([string]$Html, $Winkel, [decimal]$MaxPrijs) {
 
     $bezwaar = Get-PrijsBezwaar $prijs $Winkel $MaxPrijs
     if ($bezwaar) { return (New-Status 'geen' $prijs $bezwaar) }
-    New-Status 'hit' $prijs 'te koop'
+
+    # Amazon neemt soms bestellingen aan met maanden levertijd; dat staat dan in de voorraadtekst.
+    $levering = [regex]::Match($Html, '(?is)id="availability"[^>]*>.{0,600}?primary-availability-message[^>]*>\s*([^<]*)').Groups[1].Value
+    $levering = ($levering -replace '\s+', ' ').Trim()
+    if (Test-LangeLevertijd $levering) { return (New-Status 'geen' $prijs "lange levertijd ($levering)") }
+    if (-not $levering) { $levering = $null }
+    New-Status 'hit' $prijs 'te koop' $levering
 }
 
 # Status van een winkelpagina: 'hit' (te koop binnen de grenzen), 'geen' of 'onleesbaar'.
@@ -211,10 +235,11 @@ function Invoke-WinkelControle($Winkel, $Staat, [scriptblock]$Ophalen, [decimal]
     [pscustomobject]@{ Staat = $update.Staat; Meldingen = $update.Meldingen; Resultaat = $resultaat }
 }
 
-# De winkels die in deze omgeving meedoen. Winkels met "cloud": false in winkels.json
-# blokkeren de servers van de cloud en worden daar overgeslagen; op de laptop doen ze gewoon mee.
+# De winkels die in deze omgeving meedoen.
+# "aan": false in winkels.json zet een winkel overal uit (weer aanzetten: de regel weghalen of true maken).
+# "cloud": false betekent dat de winkel de servers van de cloud blokkeert; alleen de laptop volgt hem dan.
 function Select-Winkels($Winkels, [bool]$InCloud) {
-    @($Winkels) | Where-Object { -not $InCloud -or (Get-Eigenschap $_ 'cloud' $true) }
+    @($Winkels) | Where-Object { (Get-Eigenschap $_ 'aan' $true) -and (-not $InCloud -or (Get-Eigenschap $_ 'cloud' $true)) }
 }
 
 # Een regel die zegt hoe een hele controleronde is gegaan (voor het logboek en de cloud).
@@ -260,8 +285,17 @@ function New-PushoverBericht([string]$Soort, $Winkel = $null, $Resultaat = $null
     switch ($Soort) {
         'alarm' {
             $prijs = Format-Prijs $Resultaat.Prijs
-            $b.title = "PS5 Pro op voorraad: $($Winkel.naam) $prijs"
-            $b.message = "Nu te koop bij $($Winkel.naam) voor $prijs. Tik op de link en bestel direct, het is vaak snel weer op."
+            $levering = [string](Get-Eigenschap $Resultaat 'Levering' '')
+            if ($levering -eq 'voorbestelling' -or $levering -eq 'nabestelling') {
+                # Te bestellen, maar ligt niet klaar: dat moet meteen duidelijk zijn.
+                $b.title = "PS5 Pro te bestellen ($levering): $($Winkel.naam) $prijs"
+                $b.message = "Te bestellen bij $($Winkel.naam) voor $prijs als $levering. Kijk eerst naar de levertijd voordat je bestelt."
+            }
+            else {
+                $b.title = "PS5 Pro op voorraad: $($Winkel.naam) $prijs"
+                $b.message = "Nu te koop bij $($Winkel.naam) voor $prijs. Tik op de link en bestel direct, het is vaak snel weer op."
+                if ($levering -and $levering -ne 'op voorraad') { $b.message += " De pagina zegt over de levering: $levering." }
+            }
             if (Get-Eigenschap $Winkel 'buitenland' $false) { $b.message += ' Controleer bij het afrekenen of bezorging naar Nederland kan.' }
         }
         'test' {

@@ -272,7 +272,8 @@
       "elkeMinuten": 5,
       "url": "https://www.ldlc.com/en/product/PB00649574.html",
       "verkoperPatroon": "(?i)^ldlc$",
-      "buitenland": true
+      "buitenland": true,
+      "aan": false
     },
     {
       "id": "xtralife",
@@ -280,7 +281,8 @@
       "type": "jsonld",
       "elkeMinuten": 5,
       "url": "https://www.xtralife.com/producto/consola-ps5-pro-ps5-edicion-pro/83107",
-      "buitenland": true
+      "buitenland": true,
+      "aan": false
     },
     {
       "id": "caseking",
