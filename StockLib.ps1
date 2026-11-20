@@ -203,9 +203,11 @@ function Update-WinkelStaat($Staat, $Resultaat, [datetime]$Nu, [int]$StoringNaMi
     [pscustomobject]@{ Staat = $nieuw; Meldingen = $meldingen }
 }
 
-function Test-AanDeBeurt($LaatsteCheck, [int]$ElkeMinuten, [datetime]$Nu) {
+# -SpelingSeconden: in de cloud start een timer de rondes en die is nooit op de seconde precies;
+# met speling telt een winkel als aan de beurt wanneer het interval bijna voorbij is.
+function Test-AanDeBeurt($LaatsteCheck, [int]$ElkeMinuten, [datetime]$Nu, [int]$SpelingSeconden = 0) {
     if (-not $LaatsteCheck) { return $true }
-    ($Nu - (ConvertTo-Tijd $LaatsteCheck)).TotalSeconds -ge ($ElkeMinuten * 60)
+    ($Nu - (ConvertTo-Tijd $LaatsteCheck)).TotalSeconds -ge ($ElkeMinuten * 60 - $SpelingSeconden)
 }
 
 # Haalt een winkelpagina op (via -Ophalen), beoordeelt hem, werkt de staat bij en verstuurt meldingen.

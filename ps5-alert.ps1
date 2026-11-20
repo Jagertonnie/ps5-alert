@@ -143,6 +143,10 @@ Write-Log "Gestart: $($winkels.Count) winkelpagina's, maximum $(Format-Prijs $sc
 # Op de laptop begint de storingstijd opnieuw na een pauze van een half uur (dichtgeklapt).
 # In de cloud niet: daar zit soms een uur tussen twee controles.
 $pauzeNaMinuten = if ($Once) { 0 } else { 30 }
+# In de cloud start een timer elke 2 minuten een ronde. Elke winkel houdt ook daar zijn eigen
+# interval aan (PlayStation Direct elke ronde, de rest om de paar rondes), met wat speling
+# omdat de timer niet op de seconde precies is.
+$spelingSeconden = if ($Once) { 75 } else { 0 }
 $uitkomsten = @()
 
 while ($true) {
@@ -150,7 +154,7 @@ while ($true) {
 
     foreach ($winkel in $winkels) {
         $vorige = $staat[$winkel.id]
-        if (-not $Once -and -not (Test-AanDeBeurt (Get-Eigenschap $vorige 'LaatsteCheck') $winkel.elkeMinuten (Get-Date))) { continue }
+        if (-not (Test-AanDeBeurt (Get-Eigenschap $vorige 'LaatsteCheck') $winkel.elkeMinuten (Get-Date) $spelingSeconden)) { continue }
         try {
             $r = Invoke-WinkelControle -Winkel $winkel -Staat $vorige -Ophalen $ophalen -Melden $melden -MaxPrijs $script:instellingen.MaxPrijs -Nu (Get-Date) -StoringNaMinuten $script:instellingen.StoringNaMinuten -PauzeNaMinuten $pauzeNaMinuten
             $staat[$winkel.id] = $r.Staat
